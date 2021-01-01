@@ -18,32 +18,29 @@ i18n.configure({
     locales: ['en', 'zh_hk', 'zh_cn'],
     directory: path.join(__dirname, 'locales'),
     defaultLocale: 'zh_hk',
-    cookie: 'testi18n'
 })
 
-app.use(cookieParser('testI18n'))
-app.use(session({
-    secret: "testI18n",
-    resave: true,
-    saveUninitialized: true,
-    cookie: { maxAge: 10000 }
-}))
 app.use(i18n.init)
 // end of i18n setup
 
-app.get('/', siteController.getIndex)
-app.get('/index', siteController.getIndex)
-app.get('/about', siteController.getAbout)
+app.use('/zh_hk', (req, res, next) => {
+    res.setLocale('zh_hk')
+    next()
+})
 
-app.get('/*/zh_hk', (req, res) => {
-    var redirectedPath = req.path.split('/')[1]
-    res.cookie('testi18n', 'zh_hk')
-    res.redirect('/'+redirectedPath)
+app.use('/en', (req, res,next) => {
+    res.setLocale('en')
+    next()
 })
-app.get('/*/en', (req, res) => {
-    var redirectedPath = req.path.split('/')[1]
-    res.cookie('testi18n', 'en')
-    res.redirect('/'+redirectedPath)
+
+app.use('/zh_cn', (req, res,next) => {
+    res.setLocale('zh_cn')
+    next()
 })
+
+
+app.get('/', siteController.getHome)
+app.get('/:locale/index', siteController.getIndex)
+app.get('/:locale/about', siteController.getAbout)
 
 app.listen(3000)
